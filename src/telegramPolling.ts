@@ -1,8 +1,8 @@
-import { Update } from './types/telegramTypes';
-import { Telegram } from '.';
+import { TelegramAPI } from './telegramApi';
+import * as TelegramTypes from './types';
 
 export class TelegramPolling {
-    bot: Telegram;
+    bot: TelegramAPI;
     lastRequest: any;
     lastUpdate: number = 0;
     updateTimeout: NodeJS.Timeout | null;
@@ -12,7 +12,7 @@ export class TelegramPolling {
         offset: 0
     }
 
-    constructor(bot: Telegram) {
+    constructor(bot: TelegramAPI) {
         this.bot = bot;
         this.updateTimeout = null;
         this.updateFinish = true;
@@ -52,6 +52,7 @@ export class TelegramPolling {
             });
             return null;
         }).catch(err => {
+            console.log(err);
         }).finally(() => {
             if (this.updateFinish) {
                 this.updateTimeout = setTimeout(() => this.startPolling(), 300);
@@ -59,7 +60,7 @@ export class TelegramPolling {
         });
     }
 
-    getUpdates(): Promise<Update[]> {
+    getUpdates(): Promise<TelegramTypes.Update[]> {
         return this.bot.getUpdates(this.options);
     }
 }

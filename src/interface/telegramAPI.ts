@@ -1,11 +1,9 @@
-import { Update } from "../types/telegramTypes";
+import * as TelegramTypes from '../types'
 
-export interface TelegramAPI {
-    sendMessage(chatId: number, text: string): void;
-    getUpdates(options: Object): Promise<Update[]>;
-    getMe(options: Object): Promise<Update[]>;
-    onText(regexp: RegExp | string, callback: (...args: any[]) => void): void;
-    processUpdate(update: Update): void;
+export interface ITelegramAPI {
+    getUpdates(options: Object): Promise<TelegramTypes.Update[]>;
+    processUpdate(update: TelegramTypes.Update): void;
     startUpdaters(): void;
     on(eventName: string | symbol, listener: (...args: any[]) => void): this;
+    sendRequest<T>(path: string, options: Object): Promise<T>;
 }

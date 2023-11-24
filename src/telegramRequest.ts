@@ -1,5 +1,4 @@
 import https from 'node:https';
-import { Update } from './types/telegramTypes';
 
 export class TelegramRequest {
     static telegramApi: string = 'https://api.telegram.org';
@@ -17,7 +16,7 @@ export class TelegramRequest {
         return new URL(`${TelegramRequest.telegramApi}/bot${TelegramRequest.telegramToken}/${path}`);
     }
 
-    static sendRequest(path: string, body: Object): Promise<Array<Update>> {
+    static sendRequest<T>(path: string, body: Object): Promise<T> {
         return new Promise((resolve, reject) => {
             const bodyString = JSON.stringify(body);
             const options = {
@@ -34,13 +33,16 @@ export class TelegramRequest {
 
                 response.setEncoding('utf8');
                 console.log('statusCode:', response.statusCode)
+                if(response.statusCode != 200){
+                    console.error("statusCode is " + response.statusCode);
+                    throw new Error("statusCode is " + response.statusCode);
+                }
                 response.on('data', (chunk) => {
                     data += chunk
                 });
-
                 response.on('end', () => {
                     try {
-                        const updates: Update[] = JSON.parse(data).result;
+                        const updates: T = JSON.parse(data).result;
                         resolve(updates);
                     } catch (error) {
                         reject(error);
