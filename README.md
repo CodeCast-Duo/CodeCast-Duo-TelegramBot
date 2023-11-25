@@ -12,9 +12,11 @@
     1. [Message Types Table](#Message-Types-Table)
     2. [Update Types Table](#Update-Types-Table)
 4. [Examples](#Examples)
-5. [~~*__Advanced Topics__*~~](#Advanced-Topics)
-    1. [~~*__Custom configurations__*~~](#Custom-configurations)
-    2. [~~*__Error handling__*~~](#Error-handling)
+5. [Advanced Topics](#Advanced-Topics)
+    1. [Error types](#Error-types)
+	2. [Error handling](#Error-handling)
+	1. [Description TelegramError class](#Description-TelegramError-class)
+	    1. [Properties Table TelegramError](#Properties-Table-TelegramError)
 
 ## Introduction
 Welcome to the CodeCast-Duo Telegram Bot API, an advanced and sophisticated toolset exclusively developed for the CodeCast-Duo organization. This API embodies a comprehensive suite of functionalities, meticulously crafted to cater to the specific requirements of our organizational framework. It is a pivotal asset in streamlining Telegram bot development and management, ensuring that our bots align seamlessly with the operational and strategic objectives of CodeCast-Duo. This documentation serves as a detailed guide, assisting our developers in harnessing the full potential of this bespoke API.
@@ -96,23 +98,158 @@ The `onMessag`, `onUpdate` and `onText` are key methods used in the CodeCast-Duo
 |----------------|:---------:|----------------|
 | `channel_post` | New incoming channel post of any kind (text, photo, sticker, etc.). | `TelegramTypes.Message` |
 | `poll` | New poll state. Bots receive only updates about stopped polls and polls sent by the bot. | `TelegramTypes.Poll` |
+| `callback_query`| Incoming callback query from a callback button in an inline keyboard. | `TelegramTypes.CallbackQuery` |
 
 ## Examples
 
 Here's a basic guide on how to use the CodeCast-Duo Telegram Bot API in your project:
 
 ```javascript
+// Import the required TelegramBot library
 const TelegramBot = require('@codecast-duo/codecast-duo-telegrambot');
-const token = 'TELEGRAM_TOKEN';
-const bot = new Telegram(token, null);
 
-// Listen and send the 'text' parameter from the Message class
+// Define your Telegram bot token
+const token = 'TELEGRAM_TOKEN';
+
+// Create a new instance of the Telegram bot
+const bot = new TelegramBot(token, null);
+
+// Event listener for incoming text messages
 bot.onMessage('text', (parameter, message) => {
-    console.log(parameter);
+    // Define the structure of the inline keyboard markup
+    const inlineKeyboardMarkup = {
+        reply_markup: {
+            inline_keyboard: [
+                [{ text: 'Test1', callback_data: 'Callback data test1' }],
+                [{ text: 'Test2', callback_data: 'Callback data test2' }]
+            ]
+        }
+    };
+
+    // Send a message back to the chat with the inline keyboard
+    bot.sendMessage(message.chat.id, (parameter || 'if parameter empty'), inlineKeyboardMarkup).catch(
+        (error) => {
+            // Handle errors specifically related to Telegram
+            if (error instanceof TelegramError) {
+                console.log(error.message);
+            } else {
+                // Handle any other generic errors
+                console.log("is default error");
+            }
+        }
+    )
 });
 
-bot.onText(/\/echo (.+)/, (message, match) => {
-  // Send the corresponding 'whatever' to the chat
-  bot.sendMessage(message.chat.id, match);
+// Event listener for callback queries (e.g., when an inline button is pressed)
+bot.onUpdate('callback_query', (callback, update) => {
+    // Respond to the callback query
+    bot.sendMessage(callback.from.id, (callback.data || 'if callback.data empty'));
+    console.log(callback.data);
+});
+
+// Check the bot's information (e.g., username)
+bot.getMe().then(user => {
+    // Log success if user data is retrieved
+    if (user) {
+        console.log("connected");
+    }
+});
+
+// Global error event listener
+bot.on('error', (error) => {
+    // Log any errors encountered
+    console.error(error);
+});
+
+// Specific error event listener for network-related errors
+bot.on('error-NetworkError', (error) => {
+    // Log network errors separately
+    console.error(error);
+});
+
+// Event listener for text commands (e.g., "/echo some text")
+bot.onText(/\/echo (.+)/, (message) => {
+    // Log the text following the echo command
+    console.log(message.text);
 });
 ```
+
+## Advanced Topics
+
+### Error types
+
+Below is a table describing the different types of errors (TelegramErrorTypes) that can occur when interacting with the Telegram API, along with a brief description of each error type:
+
+| Error Type                   | Description |
+|------------------------------|-------------|
+| **NetworkError**             | Occurs when there is a problem with the network connection, such as a failure to reach the Telegram servers. |
+| **ApiError**                 | This error is thrown when there is an issue with the API request, such as invalid parameters or authentication issues. |
+| **TimeoutError**             | Occurs when a request to the Telegram API takes too long to respond, exceeding the predefined timeout limit. |
+| **InternalServerError**     | Indicates a problem on the Telegram server side, such as a server malfunction or maintenance. |
+| **ParsingError**             | This error is encountered when there is an issue in parsing the response from the Telegram API. |
+| **UnhandledPromiseRejection**| Occurs when a Promise in the code is rejected but not properly handled with a catch block. |
+| **UnknownError**             | Used as a catch-all for any errors that do not fit into the other predefined categories. |
+
+### Error handling
+
+In your Telegram bot implementation, you can set up error handling in two primary ways:
+
+1. **Catch All Errors**: Use `bot.on('error', (error) => {});` to handle all types of errors. This is a general error handler that will catch any error thrown by the bot, regardless of its type. It's useful for logging or handling errors in a generic way.
+
+   ```javascript
+   bot.on('error', (error) => {
+       console.error('An error occurred:', error);
+       // Additional error handling logic can go here
+   });
+   ```
+
+2. **Catch Specific Types of Errors**: Use `bot.on('error-`[TelegramErrorTypes](#Error-types)`', (error) => {});` to handle specific types of errors. This allows for more granular error handling based on the error type. For example, you can have different handlers for `NetworkError`, `ApiError`, etc.
+
+   ```javascript
+   // Handling NetworkError specifically
+   bot.on('error-NetworkError', (error) => {
+       console.error('Network Error:', error);
+       // Specific handling for network errors
+   });
+
+   // Handling ApiError specifically
+   bot.on('error-ApiError', (error) => {
+       console.error('API Error:', error);
+       // Specific handling for API errors
+   });
+
+   // ... similarly for other error types
+   ```
+
+3. **Catch from onMessage(), onUpdate(), onText ()**:
+In the context of Telegram bot development using the described library, methods like onMessage, onUpdate, and onText typically return a Promise. The resolution of these promises is usually void, meaning they do not return any value upon successful completion. However, in case of an error, these methods can throw an exception, which is caught in the catch block.
+
+When you use these methods, it's a good practice to handle potential errors that might occur during their execution. This error handling is usually done by attaching a catch block to the promise. The error caught is typically an instance of the TelegramError class, which provides details about what went wrong.
+
+Here's how you might structure your code to include error handling with these methods:
+
+   ```javascript
+   // Handling incoming text messages
+    bot.onMessage('text', (parameter, message) => {
+        // Logic to handle the message
+        // ...
+    }).catch(error => {
+        if (error instanceof TelegramError) {
+            console.error('TelegramError occurred:', error.message);
+        } else {
+            console.error('Unknown error occurred:', error);
+        }
+    });
+   ```
+
+### Description TelegramError
+The `TelegramError` class provides a structured way to handle errors encountered during Telegram bot operations. It encapsulates details about the error, including its type and, if available, a specific error code. This class can handle different types of errors, such as network issues or API-related problems, and can be instantiated with detailed information about the underlying error.
+
+#### Properties Table TelegramError
+
+| Parameter    | Type                         | Description                                                                                                                                                   |
+|--------------|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `error_code` | `string` \| `undefined`      | An optional code that provides additional information about the error. This is typically specific to the type of error encountered.                           |
+| `type`       | `TelegramErrorTypes`         | The type of the error, categorized as one of the predefined `TelegramErrorTypes`, such as `NetworkError`, `ApiError`, etc.                                    |
+| `message`    | `string`                     | Inherited from the base `Error` class, this property contains a message describing the error.                                                                |
+| `stack`      | `string` \| `undefined`      | Also inherited from the base `Error` class, this property provides a stack trace at the point where the error was instantiated, if available.                 |

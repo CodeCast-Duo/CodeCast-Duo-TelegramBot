@@ -1,14 +1,16 @@
 import https from 'node:https';
+import { TelegramErrorResponse } from './types';
+import { TelegramError } from './telegramError';
 
 export class TelegramRequest {
     static telegramApi: string = 'https://api.telegram.org';
     static telegramToken: string = '';
 
-    static setTelegramApi(telegramApi: string){
+    static setTelegramApi(telegramApi: string) {
         TelegramRequest.telegramApi = telegramApi;
     }
 
-    static setTelegramToken(telegramToken: string){
+    static setTelegramToken(telegramToken: string) {
         TelegramRequest.telegramToken = telegramToken;
     }
 
@@ -32,24 +34,26 @@ export class TelegramRequest {
                 let data = '';
 
                 response.setEncoding('utf8');
-                console.log('statusCode:', response.statusCode)
-                if(response.statusCode != 200){
-                    console.error("statusCode is " + response.statusCode);
-                    throw new Error("statusCode is " + response.statusCode);
-                }
+
                 response.on('data', (chunk) => {
                     data += chunk
                 });
                 response.on('end', () => {
                     try {
                         const updates: T = JSON.parse(data).result;
+                        if (response.statusCode != 200) {
+                            throw new TelegramError((updates || JSON.parse(data)) as TelegramErrorResponse, "NetworkError");
+                        }
+                        if(!updates){
+                            throw new TelegramError(new Error("Parse response return null"), "ParsingError");
+                        }
                         resolve(updates);
                     } catch (error) {
                         reject(error);
                     }
                 });
-            }).on('error', (err) => {
-                reject(err.message);
+            }).on('error', (error: Error) => {
+                reject(new TelegramError(error));
             });
 
             req.write(bodyString);
