@@ -77,6 +77,7 @@ export const messageTypesKeys: Array<keyof MessageTypes> = [
 ];
 
 export type UpdateTypes = {
+    message: TelegramTypes.Message,
     channel_post: TelegramTypes.Message,
     //inline_query:InlineQuery,
     //chosen_inline_result:ChosenInlineResult
@@ -93,6 +94,7 @@ export type UpdateTypes = {
 export type UpdateTypesKeys = keyof UpdateTypes;
 
 export const updateTypesKeys: Array<keyof UpdateTypes> = [
+    "message",
     "channel_post",
     "poll",
     "callback_query",

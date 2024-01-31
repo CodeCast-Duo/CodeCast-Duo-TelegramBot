@@ -10,7 +10,7 @@ export type TelegramOptions = {
 
 export type OptionsUpdate = {
     offset: number,
-    allowed_updates: Array<keyof UpdateTypes | keyof MessageTypes>,
+    allowed_updates: Array<keyof UpdateTypes>,
     limitUpdates?: number,
 };
 
