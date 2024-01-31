@@ -3,9 +3,10 @@ import { ITelegramAPI } from './interface/telegramAPI';
 import { TelegramPolling } from './telegramPolling';
 import { TelegramRequest } from './telegramRequest';
 import * as TelegramTypes from './types';
+import { TelegramError } from './telegramError';
 
 export class TelegramAPI extends EventEmitter implements ITelegramAPI {
-    telegramUpdates: TelegramPolling;
+    telegramPolling: TelegramPolling;
     callBacksText: Array<{ regexp: RegExp | string, callback: (...args: any[]) => void }> = [];
     replyToMessages: Array<{
         id: number,
@@ -20,8 +21,16 @@ export class TelegramAPI extends EventEmitter implements ITelegramAPI {
             TelegramRequest.setTelegramApi(telegramApi);
         }
         TelegramRequest.setTelegramToken(telegramToken);
-        this.telegramUpdates = new TelegramPolling(this);
+        this.telegramPolling = new TelegramPolling(this);
+        this.checkConnection();
         this.startUpdaters();
+    }
+
+    sendError(error: Error) {
+        this.emit("error", error);
+        if (error instanceof TelegramError && error.type) {
+            this.emit("error-" + error.type, error);
+        }
     }
 
     onMessage<K extends TelegramTypes.MessageTypesKeys>(event: K, listener: (arg: TelegramTypes.Message[K], message: TelegramTypes.Message) => void): this {
@@ -40,8 +49,12 @@ export class TelegramAPI extends EventEmitter implements ITelegramAPI {
         return super.emit(event, arg, update);
     }
 
+    checkConnection(): void {
+        return this.telegramPolling.checkConnection({});
+    }
+
     startUpdaters(): void {
-        return this.telegramUpdates.start();
+        return this.telegramPolling.start();
     }
 
     isIncludeMessageType<K extends keyof TelegramTypes.MessageTypesKeys>(key: string): K | false {
@@ -53,7 +66,11 @@ export class TelegramAPI extends EventEmitter implements ITelegramAPI {
     }
 
     isIncludeUpdateType<K extends TelegramTypes.UpdateTypesKeys>(key: string): K | false {
-        return key as K ? key as K : false;
+        if (TelegramTypes.updateTypesKeys.includes(key as TelegramTypes.UpdateTypesKeys)) {
+            return key as K;
+        } else {
+            return false;
+        }
     }
 
     processUpdate(update: TelegramTypes.Update): void {
@@ -88,21 +105,24 @@ export class TelegramAPI extends EventEmitter implements ITelegramAPI {
             }*/
         } else {
             for (const [updateKey, updateValue] of Object.entries(update)) {
-                const metadataType = this.isIncludeMessageType(updateKey);
+                const metadataType = this.isIncludeUpdateType(updateKey);
                 if (updateValue && metadataType) {
-                    this.emitUpdate(updateKey as TelegramTypes.UpdateTypesKeys, update[metadataType as TelegramTypes.UpdateTypesKeys], update);
+                    this.emitUpdate(updateKey as TelegramTypes.UpdateTypesKeys, update[metadataType], update);
                 }
             }
         }
-
     }
 
-    sendRequest<T>(path: string, options: Object): Promise<T> {
+    getMe(options: Object): Promise<TelegramTypes.User> {
+        return this.sendRequest<TelegramTypes.User>('getMe', options);
+    }
+
+    sendRequest<T>(path: string, options: Object| TelegramTypes.EmptyObject = {}): Promise<T> {
         return TelegramRequest.sendRequest<T>(path, options);
     }
 
     getUpdates(options: Object): Promise<TelegramTypes.Update[]> {
-        return TelegramRequest.sendRequest<TelegramTypes.Update[]>('getUpdates', options);
+        return this.sendRequest<TelegramTypes.Update[]>('getUpdates', options);
     }
 
 }

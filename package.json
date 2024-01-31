@@ -1,6 +1,6 @@
 {
   "name": "@codecast-duo/codecast-duo-telegrambot",
-  "version": "0.0.3",
+  "version": "0.1.0",
   "description": "The \"codecast-duo-telegrambot\" project is a specialized Telegram bot designed exclusively for organizing and managing the activities of the \"codecast-duo\" community or initiative",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
@@ -14,9 +14,9 @@
   "author": "Stanislav Tolstonozhenko (CodeCast-Duo)",
   "license": "ISC",
   "devDependencies": {
-    "@types/node": "^20.9.4",
-    "nodemon": "^3.0.1",
-    "ts-node": "^10.9.1",
+        "@types/node": "^20.9.4",
+        "nodemon": "^3.0.1",
+        "ts-node": "^10.9.1",
     "typescript": "^5.3.2"
   }
 }

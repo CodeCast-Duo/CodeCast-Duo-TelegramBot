@@ -397,7 +397,7 @@ export type Update = {
   channel_post?: Message,
   edited_channel_post?: Message,
   poll: Poll
-  //inline_query
+  callback_query: CallbackQuery
 }
 
 export type ReplyKeyboardMarkup = {
@@ -428,18 +428,24 @@ export type ReplyMarkup = {
   reply_markup: InlineKeyboardMarkup | ReplyKeyboardMarkup | ReplyKeyboardRemove | ForceReply
 }
 
-export type TelegramBotErrorType =
-  | "NetworkError" // Мережеві помилки
-  | "ApiError" // Помилки API
-  | "AuthenticationError" // Помилки аутентифікації
-  | "RateLimitError" // Помилки обмеження частоти запитів
-  | "TimeoutError" // Помилки тайм-ауту
-  | "InternalServerError" // Внутрішні помилки сервера
-  | "ParsingError" // Помилки розбору даних
-  | "UnhandledPromiseRejection"; // Невідслідковані відмови промісів
+export type TelegramErrorResponse = {
+  ok: boolean,
+  error_code: number,
+  description: string
+}
 
-export interface EMPTY { }
+export type CallbackQuery = {
+  id: string, // Unique identifier for this query.
+  from: User, // Sender of the query, as a User object.
+  message?: Message, // Message with the callback button that originated the query.
+  inline_message_id?: string, // Identifier of the message sent via the bot in inline mode, that originated the query.
+  chat_instance: string, // Global identifier, uniquely corresponding to the chat to which the message with the callback button was sent.
+  data?: string, // Data associated with the callback button. 
+  game_short_name?: string // Short name of a Game to be returned, serves as the unique identifier for the game.
+};
 
+
+export interface EmptyObject { }
 
 export type Sticker = {
   file_id: string; // Unique file identifier

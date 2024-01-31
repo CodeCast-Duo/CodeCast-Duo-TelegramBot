@@ -1,4 +1,5 @@
 import { TelegramAPI } from './telegramApi';
+import { TelegramError } from './telegramError';
 import * as TelegramTypes from './types';
 
 export class TelegramPolling {
@@ -16,6 +17,10 @@ export class TelegramPolling {
         this.bot = bot;
         this.updateTimeout = null;
         this.updateFinish = true;
+    }
+
+    checkConnection(options: Object): void {
+        this.bot.getMe(options);
     }
 
     start(): void {
@@ -51,8 +56,8 @@ export class TelegramPolling {
                 this.bot.processUpdate(update);
             });
             return null;
-        }).catch(err => {
-            console.log(err);
+        }).catch((err: Error) => {
+            this.bot.sendError(new TelegramError(err));
         }).finally(() => {
             if (this.updateFinish) {
                 this.updateTimeout = setTimeout(() => this.startPolling(), 300);
