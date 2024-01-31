@@ -80,7 +80,7 @@ export type UpdateTypes = {
     channel_post: TelegramTypes.Message,
     //inline_query:InlineQuery,
     //chosen_inline_result:ChosenInlineResult
-    //callback_query:CallbackQuery,
+    callback_query:TelegramTypes.CallbackQuery,
     //shipping_query:ShippingQuery
     //pre_checkout_query:PreCheckoutQuery,
     poll: TelegramTypes.Poll
@@ -94,5 +94,6 @@ export type UpdateTypesKeys = keyof UpdateTypes;
 
 export const updateTypesKeys: Array<keyof UpdateTypes> = [
     "channel_post",
-    "poll"
+    "poll",
+    "callback_query"
 ]
