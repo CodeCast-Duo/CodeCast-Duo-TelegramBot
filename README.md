@@ -2,21 +2,32 @@
 
 ## Content
 
-0. [Introduction](#Introduction)
-1. [Installation](#Installation)
-2. [API Methods](#API-Methods)
-    1. [onMessage Method](#onMessage-Method)
-    2. [onUpdate Method](#onUpdate-Method)
-    3. [onText Method](#onText-Method)
-3. [Event Types](#Event-Types)
-    1. [Message Types Table](#Message-Types-Table)
-    2. [Update Types Table](#Update-Types-Table)
-4. [Examples](#Examples)
-5. [Advanced Topics](#Advanced-Topics)
-    1. [Error types](#Error-types)
-	2. [Error handling](#Error-handling)
-	1. [Description TelegramError class](#Description-TelegramError-class)
-	    1. [Properties Table TelegramError](#Properties-Table-TelegramError)
+0. [Introduction](#introduction)
+1. [Installation](#installation)
+2. [Telegram API - Usage Guide](#telegram-api---usage-guide)
+    1. [Creating an Instance](#creating-an-instance-of-telegramapi)
+    2. [Configuring TelegramOptions](#configuring-telegramoptions)
+        1. [TelegramOptions Table](#telegramoptions-table)
+        2. [OptionsUpdate Sub-Table](#optionsupdate-sub-table)
+        3. [OptionsPollingWaitManage Sub-Table](#optionspollingwaitmanage-sub-table)
+3. [API Methods](#api-methods)
+    1. [onMessage Method](#onmessage-method)
+    2. [onUpdate Method](#onupdate-method)
+    3. [onText Method](#ontext-method)
+    4. [startUpdater Method](#startupdater-method)
+    5. [stopUpdater Method](#stopupdater-method)
+4. [Event Types](#event-types)
+    1. [Message Types Table](#message-types-table)
+    2. [Update Types Table](#update-types-table)
+5. [Examples](#examples)
+6. [Advanced Topics](#advanced-topics)
+    1. [Error types](#error-types)
+	2. [Error handling](#error-handling)
+	3. [Description TelegramError class](#description-telegramerror)
+	    1. [Properties Table TelegramError](#properties-table-telegramerror)
+7. [Polling Wait Manager](#polling-wait-manager)
+    1. [Using Polling Wait Manager](#using-polling-wait-manager)
+    2. [Polling Wait Manager Methods](#polling-wait-manager-methods)
 
 ## Introduction
 Welcome to the CodeCast-Duo Telegram Bot API, an advanced and sophisticated toolset exclusively developed for the CodeCast-Duo organization. This API embodies a comprehensive suite of functionalities, meticulously crafted to cater to the specific requirements of our organizational framework. It is a pivotal asset in streamlining Telegram bot development and management, ensuring that our bots align seamlessly with the operational and strategic objectives of CodeCast-Duo. This documentation serves as a detailed guide, assisting our developers in harnessing the full potential of this bespoke API.
@@ -31,17 +42,84 @@ npm i @codecast-duo/codecast-duo-telegrambot
 
 This command installs the CodeCast-Duo Telegram Bot package, adding it to your project's dependencies.
 
+## Telegram API - Usage Guide
+
+### Creating an Instance of TelegramAPI
+
+To start using the Telegram API, you need to create an instance of the TelegramAPI class. This is done using the constructor, which takes an object of type `TelegramOptions` as its argument. This object contains several configurations that determine how your API instance will behave.
+
+### Example
+
+```javascript
+const TelegramBot = require('@codecast-duo/codecast-duo-telegrambot');
+
+// Create a new instance of the Telegram bot
+const bot = new TelegramBot({
+    telegramToken: "TELEGRAM_TOKEN",
+    // Other TelegramOptions fields as needed
+});
+```
+
+### Configuring TelegramOptions
+
+The `TelegramOptions` object contains various settings that are crucial for the operation of your Telegram bot. Here are the key options you need to configure:
+
+#### TelegramOptions Table
+
+| Option | Type | Description | Default Value |
+|----------------|:------:|----------------|----|
+| `telegramToken` | `string` | The unique token for your Telegram bot, provided by BotFather. | None (Mandatory) |
+| `telegramApi` | `string` | Optional. The URL of the Telegram API. If not specified, the default URL is used. | `'https://api.telegram.org'` |
+| `start` | `boolean` | Optional. Determines whether the bot starts processing messages immediately after instantiation. If `false` use [startUpdaters](#startupdater-method) to start polling updates. | true |
+| `optionUpdate` | `OptionsUpdate` | Optional. Configuration for receiving updates, including offset, allowed updates, and limit on updates. | [OptionsUpdate Sub-Table](#optionsupdate-sub-table) |
+| `optionPollingWaitManager` | `OptionsPollingWaitManage` | Optional. Settings for managing the wait time between polling, including max wait time and timeout action. | [OptionsPollingWaitManage Sub-Table](#optionsupdate-sub-table) |
+
+#### OptionsUpdate Sub-Table
+
+| Option | Type | Description | Default Value |
+|----------------|:------:|----------------|----|
+| `offset` | `number` | Optional. Identifier of the first update to be returned. | 0 |
+| `allowed_updates` | Array<keyof [UpdateTypes](#update-types-table) \| keyof [MessageTypes](#message-types-table)> | Optional. List of update types to be received. | [] |
+| `limitUpdates` | `number` | Optional. Limits the number of updates to be retrieved. | 100 |
+
+#### OptionsPollingWaitManage Sub-Table
+
+| Option | Type | Description | Default Value |
+|----------------|:------:|----------------|----|
+| `maxWaitTime` | `number` | Optional. The maximum waiting time (in milliseconds) allowed before considering the polling process as too long and taking action. | `60000` (60 seconds) |
+| `onWait` | `number` | Optional. A callback function that gets executed when the waiting time exceeds `maxWaitTime`. It allows you to define custom actions or error handling when polling takes too long. | Empty function (`() => {}`) |
+
+#### Example
+
+```javascript
+const options = {
+    telegramToken: 'YOUR_TELEGRAM_BOT_TOKEN',
+    telegramApi: 'https://api.telegram.org',
+    start: true,
+    optionUpdate: {
+        offset: 0,
+        allowed_updates: ['message', 'edited_message'],
+        limitUpdates: 100
+    },
+    optionPollingWaitManager: {
+        maxWaitTime: 3000,
+        onWaitTooLong: () => { /* Handle long wait times */ }
+    }
+};
+
+```
+
 ## API Methods
 
 The `onMessag`, `onUpdate` and `onText` are key methods used in the CodeCast-Duo Telegram Bot API for handling various types of events:
 
 ### onMessage Method
 
-- `onMessage<K extends TelegramTypes.MessageTypesKeys>(event: K, listener: (arg: TelegramTypes.Message[K], message: TelegramTypes.Message) => void)`: This method is used to listen for message-related events. It takes an event type and a listener function as arguments. The event type is one of the keys from `TelegramTypes.MessageTypesKeys`, and the listener function receives the specific message type and the general message object.
+- `onMessage<K extends `[TelegramTypes.MessageTypesKeys](#message-types-table)`>(event: K, listener: (arg: TelegramTypes.Message[K], message: TelegramTypes.Message) => void)`: This method is used to listen for message-related events. It takes an event type and a listener function as arguments. The event type is one of the keys from `TelegramTypes.MessageTypesKeys`, and the listener function receives the specific message type and the general message object.
 
 ### onUpdate Method
 
-- `onUpdate<K extends TelegramTypes.UpdateTypesKeys>(event: K, listener: (arg: TelegramTypes.Update[K], update: TelegramTypes.Update) => void)`: Similar to `onMessage`, this method listens for update-related events. It takes an event type from `TelegramTypes.UpdateTypesKeys` and a listener function. The listener function is invoked with the specific update type and the general update object.
+- `onUpdate<K extends `[TelegramTypes.UpdateTypesKeys](#update-types-table)`>(event: K, listener: (arg: TelegramTypes.Update[K], update: TelegramTypes.Update) => void)`: Similar to `onMessage`, this method listens for update-related events. It takes an event type from `TelegramTypes.UpdateTypesKeys` and a listener function. The listener function is invoked with the specific update type and the general update object.
 
 ### onText Method
 
@@ -51,6 +129,14 @@ The `onMessag`, `onUpdate` and `onText` are key methods used in the CodeCast-Duo
 | --- | --- |
 | `regexp` | A `RegExp` or string pattern that the incoming text message must match. |
 | `callback` | A function that is called when a message matching the `regexp` is received. This function takes a `TelegramTypes.Message` object as its argument, providing details about the matched message. |
+
+### startUpdater Method
+
+- `startUpdater(): void`: This method is used to start the polling process for updates. It initiates the bot's ability to listen for incoming updates from Telegram. This is particularly useful when your bot is set up to not start automatically, or if you've previously stopped the update polling and need to restart it.
+
+### stopUpdater Method
+
+- `stopUpdater(): void`: The stopUpdaters method is used to stop the polling process. This is useful when you want to temporarily halt your bot from listening to incoming updates, without shutting down the entire bot. This can be handy during maintenance, updating bot logic, or handling unexpected behavior.
 
 ## Event Types
 
@@ -99,6 +185,7 @@ The `onMessag`, `onUpdate` and `onText` are key methods used in the CodeCast-Duo
 | `channel_post` | New incoming channel post of any kind (text, photo, sticker, etc.). | `TelegramTypes.Message` |
 | `poll` | New poll state. Bots receive only updates about stopped polls and polls sent by the bot. | `TelegramTypes.Poll` |
 | `callback_query`| Incoming callback query from a callback button in an inline keyboard. | `TelegramTypes.CallbackQuery` |
+| `chat_join_request`| A request to join the chat has been sent. | `TelegramTypes.ChatJoinRequest` |
 
 ## Examples
 
@@ -108,11 +195,10 @@ Here's a basic guide on how to use the CodeCast-Duo Telegram Bot API in your pro
 // Import the required TelegramBot library
 const TelegramBot = require('@codecast-duo/codecast-duo-telegrambot');
 
-// Define your Telegram bot token
-const token = 'TELEGRAM_TOKEN';
-
 // Create a new instance of the Telegram bot
-const bot = new TelegramBot(token, null);
+const bot = new TelegramBot({
+    telegramToken: "TELEGRAM_TOKEN",
+});
 
 // Event listener for incoming text messages
 bot.onMessage('text', (parameter, message) => {
@@ -253,3 +339,60 @@ The `TelegramError` class provides a structured way to handle errors encountered
 | `type`       | `TelegramErrorTypes`         | The type of the error, categorized as one of the predefined `TelegramErrorTypes`, such as `NetworkError`, `ApiError`, etc.                                    |
 | `message`    | `string`                     | Inherited from the base `Error` class, this property contains a message describing the error.                                                                |
 | `stack`      | `string` \| `undefined`      | Also inherited from the base `Error` class, this property provides a stack trace at the point where the error was instantiated, if available.                 |
+
+## Polling Wait Manager
+
+The "Polling Wait Manager" is a crucial component utilized for the efficient management of the polling process in applications that communicate with a remote server through polling. Polling involves sending periodic requests to a server to retrieve updates or data. The Polling Wait Manager plays a pivotal role in ensuring the effective control of this polling process and handling pauses in the operation of an application.
+
+### Using Polling Wait Manager
+
+The Polling Wait Manager proves to be invaluable in applications that depend on polling to receive updates or data from a remote server. It serves to guarantee the efficient and optimal management of polling, dynamically turning it off when not required. This not only conserves valuable resources but also prevents excessive server load.
+
+### TelegramAPI Class and Polling Wait Manager
+
+The `TelegramAPI` class offers a seamless integration with the Polling Wait Manager, empowering you to take charge of the polling process. Here is an overview of the available methods along with their descriptions:
+
+### Polling Wait Manager Methods
+
+- `getPollingWaitManager(): PollingWaitManager | undefined`: The `getPollingWaitManager` method provides the means to fetch the current Polling Wait Manager object or returns `undefined` if it hasn't been initialized.
+
+- `setPollingWaitManager(name: string, func: () => boolean): void`: With the `setPollingWaitManager` method, you can effortlessly create or modify a function within the Polling Wait Manager. This function requires the name of the function and a callback function that should return a `boolean` value. If the Polling Wait Manager doesn't exist, this method will create it dynamically.
+
+- `removePollingWaitManager(name: string): void` The `removePollingWaitManager` method allows you to selectively remove a function from the Polling Wait Manager by specifying its name. This function deletion process is seamless and effective.
+
+These methods are instrumental in efficiently managing the polling process within your application by defining conditions under which polling should continue or cease. They serve as invaluable tools for optimizing the operation of applications reliant on polling to receive updates or data.
+
+#### Examples 1: Initializing and Using Polling Wait Manager
+
+Here's a basic guide on how to use the CodeCast-Duo Telegram Bot API in your project:
+
+```javascript
+const TelegramBot = require('@codecast-duo/codecast-duo-telegrambot');
+
+const bot = new TelegramBot({
+    telegramToken: "TELEGRAM_TOKEN",
+});
+
+const pollingWaitManager = bot.getPollingWaitManager();
+
+let continue = false;
+
+function shouldContinuePolling() {
+    return continue;
+}
+
+setTimeout(() => {
+        continue = true;
+    }, 30000);
+
+bot.setPollingWaitManager("exampleFunction", shouldContinuePolling);
+```
+
+In this example, we initialize the TelegramAPI instance, retrieve the Polling Wait Manager, define a function (shouldContinuePolling) that determines whether polling should continue, set this function in the Polling Wait Manager.
+
+#### Examples 2: Removing a Polling Function
+
+```javascript
+bot.removePollingWaitManager("exampleFunction");
+```
+In this example, we remove a polling function named "exampleFunction" from the Polling Wait Manager. This function will no longer be used to determine whether polling should continue.

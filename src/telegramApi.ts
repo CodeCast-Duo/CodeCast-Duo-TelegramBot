@@ -4,6 +4,8 @@ import { TelegramPolling } from './telegramPolling';
 import { TelegramRequest } from './telegramRequest';
 import * as TelegramTypes from './types';
 import { TelegramError } from './telegramError';
+import { TelegramOptions } from './types';
+import { PollingWaitManager } from './PollingWaitManager';
 
 export class TelegramAPI extends EventEmitter implements ITelegramAPI {
     telegramPolling: TelegramPolling;
@@ -15,15 +17,35 @@ export class TelegramAPI extends EventEmitter implements ITelegramAPI {
         callback: (...args: any[]) => void
     }> = [];
 
-    constructor(telegramToken: string, telegramApi: string | null) {
+    private _options: TelegramOptions;
+    public get options(): TelegramOptions {
+        return this._options;
+    }
+
+    constructor(options: TelegramOptions) {
         super();
-        if (telegramApi) {
-            TelegramRequest.setTelegramApi(telegramApi);
+        this._options = { start: true, ...options };
+        if (this._options.telegramApi) {
+            TelegramRequest.setTelegramApi(this._options.telegramApi);
         }
-        TelegramRequest.setTelegramToken(telegramToken);
+        TelegramRequest.setTelegramToken(this._options.telegramToken);
         this.telegramPolling = new TelegramPolling(this);
         this.checkConnection();
-        this.startUpdaters();
+        if (this._options.start) {
+            this.startUpdater();
+        }
+    }
+
+    getPollingWaitManager(): PollingWaitManager | undefined {
+        return this.telegramPolling.pollingWaitManager;
+    }
+
+    setPollingWaitManager(name: string, func: () => boolean): void {
+        this.telegramPolling.setPollingWaitManager(name, func);
+    }
+
+    removePollingWaitManager(name: string): void {
+        this.telegramPolling.removePollingWaitManager(name);
     }
 
     sendError(error: Error) {
@@ -53,8 +75,12 @@ export class TelegramAPI extends EventEmitter implements ITelegramAPI {
         return this.telegramPolling.checkConnection({});
     }
 
-    startUpdaters(): void {
+    startUpdater(): void {
         return this.telegramPolling.start();
+    }
+
+    stoptUpdater(): void {
+        this.telegramPolling.stop();
     }
 
     isIncludeMessageType<K extends keyof TelegramTypes.MessageTypesKeys>(key: string): K | false {
@@ -117,7 +143,7 @@ export class TelegramAPI extends EventEmitter implements ITelegramAPI {
         return this.sendRequest<TelegramTypes.User>('getMe', options);
     }
 
-    sendRequest<T>(path: string, options: Object| TelegramTypes.EmptyObject = {}): Promise<T> {
+    sendRequest<T>(path: string, options: Object | TelegramTypes.EmptyObject = {}): Promise<T> {
         return TelegramRequest.sendRequest<T>(path, options);
     }
 

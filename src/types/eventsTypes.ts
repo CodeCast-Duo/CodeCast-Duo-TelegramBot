@@ -87,7 +87,7 @@ export type UpdateTypes = {
     //poll_answer:PollAnswer
     //chat_member:	ChatMemberUpdated
     //my_chat_member:ChatMemberUpdated
-    //chat_join_request:ChatJoinRequest
+    chat_join_request: TelegramTypes.ChatJoinRequest
 }
 
 export type UpdateTypesKeys = keyof UpdateTypes;
@@ -95,5 +95,6 @@ export type UpdateTypesKeys = keyof UpdateTypes;
 export const updateTypesKeys: Array<keyof UpdateTypes> = [
     "channel_post",
     "poll",
-    "callback_query"
+    "callback_query",
+    "chat_join_request"
 ]
