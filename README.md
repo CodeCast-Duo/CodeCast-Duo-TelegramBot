@@ -51,10 +51,10 @@ To start using the Telegram API, you need to create an instance of the TelegramA
 ### Example
 
 ```javascript
-const TelegramBot = require('@codecast-duo/codecast-duo-telegrambot');
+const { Telegram, TelegramError } = require('@codecast-duo/codecast-duo-telegrambot');
 
 // Create a new instance of the Telegram bot
-const bot = new TelegramBot({
+const bot = new Telegram({
     telegramToken: "TELEGRAM_TOKEN",
     // Other TelegramOptions fields as needed
 });
@@ -194,10 +194,10 @@ Here's a basic guide on how to use the CodeCast-Duo Telegram Bot API in your pro
 
 ```javascript
 // Import the required TelegramBot library
-const TelegramBot = require('@codecast-duo/codecast-duo-telegrambot');
+const { Telegram, TelegramError } = require('@codecast-duo/codecast-duo-telegrambot');
 
 // Create a new instance of the Telegram bot
-const bot = new TelegramBot({
+const bot = new Telegram({
     telegramToken: "TELEGRAM_TOKEN",
 });
 
@@ -368,9 +368,9 @@ These methods are instrumental in efficiently managing the polling process withi
 Here's a basic guide on how to use the CodeCast-Duo Telegram Bot API in your project:
 
 ```javascript
-const TelegramBot = require('@codecast-duo/codecast-duo-telegrambot');
+const { Telegram } = require('@codecast-duo/codecast-duo-telegrambot');
 
-const bot = new TelegramBot({
+const bot = new Telegram({
     telegramToken: "TELEGRAM_TOKEN",
 });
 
