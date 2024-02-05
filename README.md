@@ -80,7 +80,7 @@ The `TelegramOptions` object contains various settings that are crucial for the 
 |----------------|:------:|----------------|----|
 | `offset` | `number` | Optional. Identifier of the first update to be returned. | 0 |
 | `allowed_updates` | Array<keyof [UpdateTypes](#update-types-table)> | Optional. List of update types to be received.  Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the getUpdates, so unwanted updates may be received for a short period of time. | [] |
-| `limitUpdates` | `number` | Optional. Limits the number of updates to be retrieved. | 100 |
+| `limit` | `number` | Optional. Limits the number of updates to be retrieved. | 100 |
 
 #### OptionsPollingWaitManage Sub-Table
 

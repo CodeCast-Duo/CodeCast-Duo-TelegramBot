@@ -11,7 +11,7 @@ export type TelegramOptions = {
 export type OptionsUpdate = {
     offset: number,
     allowed_updates: Array<keyof UpdateTypes>,
-    limitUpdates?: number,
+    limit?: number,
 };
 
 export type OptionsPollingWaitManage = {
