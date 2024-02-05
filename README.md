@@ -67,27 +67,27 @@ The `TelegramOptions` object contains various settings that are crucial for the 
 #### TelegramOptions Table
 
 | Option | Type | Description | Default Value |
-|----------------|:------:|----------------|----|
-| `telegramToken` | `string` | The unique token for your Telegram bot, provided by BotFather. | None (Mandatory) |
-| `telegramApi` | `string` | Optional. The URL of the Telegram API. If not specified, the default URL is used. | `'https://api.telegram.org'` |
-| `start` | `boolean` | Optional. Determines whether the bot starts processing messages immediately after instantiation. If `false` use [startUpdaters](#startupdater-method) to start polling updates. | true |
-| `optionUpdate` | `OptionsUpdate` | Optional. Configuration for receiving updates, including offset, allowed updates, and limit on updates. | [OptionsUpdate Sub-Table](#optionsupdate-sub-table) |
-| `optionPollingWaitManager` | `OptionsPollingWaitManage` | Optional. Settings for managing the wait time between polling, including max wait time and timeout action. | [OptionsPollingWaitManage Sub-Table](#optionsupdate-sub-table) |
+|----|:----:|----------------|---|
+| telegramToken | string | The unique token for your Telegram bot, provided by BotFather. | None (Mandatory) |
+| telegramApi | string | Optional. The URL of the Telegram API. If not specified, the default URL is used. | `'https://api.telegram.org'` |
+| start | boolean | Optional. Determines whether the bot starts processing messages immediately after instantiation. If `false` use [startUpdaters](#startupdater-method) to start polling updates. | true |
+| optionUpdate | OptionsUpdate | Optional. Configuration for receiving updates, including offset, allowed updates, and limit on updates. | [OptionsUpdate Sub-Table](#optionsupdate-sub-table) |
+| optionPollingWaitManager | OptionsPollingWaitManage | Optional. Settings for managing the wait time between polling, including max wait time and timeout action. | [OptionsPollingWaitManage Sub-Table](#optionsupdate-sub-table) |
 
 #### OptionsUpdate Sub-Table
 
 | Option | Type | Description | Default Value |
 |----------------|:------:|----------------|----|
-| `offset` | `number` | Optional. Identifier of the first update to be returned. | 0 |
-| `allowed_updates` | Array<keyof [UpdateTypes](#update-types-table)> | Optional. List of update types to be received.  Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the getUpdates, so unwanted updates may be received for a short period of time. | [] |
-| `limit` | `number` | Optional. Limits the number of updates to be retrieved. | 100 |
+| offset | number | Optional. Identifier of the first update to be returned. | 0 |
+| allowed_updates | Array<keyof [UpdateTypes](#update-types-table)> | Optional. List of update types to be received.  Specify an empty list to receive all update types except chat_member, message_reaction, and message_reaction_count (default). If not specified, the previous setting will be used. Please note that this parameter doesn't affect updates created before the call to the getUpdates, so unwanted updates may be received for a short period of time. | [] |
+| limit | number | Optional. Limits the number of updates to be retrieved. | 100 |
 
 #### OptionsPollingWaitManage Sub-Table
 
 | Option | Type | Description | Default Value |
 |----------------|:------:|----------------|----|
-| `maxWaitTime` | `number` | Optional. The maximum waiting time (in milliseconds) allowed before considering the polling process as too long and taking action. | `60000` (60 seconds) |
-| `onWait` | `number` | Optional. A callback function that gets executed when the waiting time exceeds `maxWaitTime`. It allows you to define custom actions or error handling when polling takes too long. | Empty function (`() => {}`) |
+| maxWaitTime | number | Optional. The maximum waiting time (in milliseconds) allowed before considering the polling process as too long and taking action. | `60000` (60 seconds) |
+| onWait | number | Optional. A callback function that gets executed when the waiting time exceeds `maxWaitTime`. It allows you to define custom actions or error handling when polling takes too long. | Empty function (`() => {}`) |
 
 #### Example
 
@@ -115,7 +115,7 @@ The `onMessag`, `onUpdate` and `onText` are key methods used in the CodeCast-Duo
 
 ### onMessage Method
 
-- `onMessage<K extends `[TelegramTypes.MessageTypesKeys](#message-types-table)`>(event: K, listener: (arg: TelegramTypes.Message[K], message: TelegramTypes.Message) => void)`: This method is used to listen for message-related events. It takes an event type and a listener function as arguments. The event type is one of the keys from `TelegramTypes.MessageTypesKeys`, and the listener function receives the specific message type and the general message object.
+- `onMessage<K extends `[TelegramTypes.MessageTypesKeys](#message-types-table)`>(event: K, listener: (arg: TelegramTypes.Message[K], message: TelegramTypes.Message) => void): Promise<TelegramTypes.Message>`: This method is used to listen for message-related events. It takes an event type and a listener function as arguments. The event type is one of the keys from `TelegramTypes.MessageTypesKeys`, and the listener function receives the specific message type and the general message object.
 
 ### onUpdate Method
 
@@ -127,8 +127,12 @@ The `onMessag`, `onUpdate` and `onText` are key methods used in the CodeCast-Duo
 
 | Parameter | Description |
 | --- | --- |
-| `regexp` | A `RegExp` or string pattern that the incoming text message must match. |
-| `callback` | A function that is called when a message matching the `regexp` is received. This function takes a `TelegramTypes.Message` object as its argument, providing details about the matched message. |
+| regexp | A `RegExp` or string pattern that the incoming text message must match. |
+| callback | A function that is called when a message matching the `regexp` is received. This function takes a `TelegramTypes.Message` object as its argument, providing details about the matched message. |
+
+### editMessageText Method
+
+- `editMessageText(options: `[TelegramTypes.EditMessageTextType](https://core.telegram.org/bots/api#editmessagetext)`): Promise<TelegramTypes.Message>`: This method is used to edit the text of an already sent message. It takes an options object which contains parameters for editing the message text. More details about the parameters that can be passed in options can be found [here](https://core.telegram.org/bots/api#editmessagetext).
 
 ### startUpdater Method
 
@@ -143,50 +147,50 @@ The `onMessag`, `onUpdate` and `onText` are key methods used in the CodeCast-Duo
 ### Message Types Table
 
 | Event | Description | Return Type |
-|----------------|:---------:|----------------|
-| `text` | Handles text messages sent in the chat. | `string` |
-| `animation` | Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound). | `TelegramTypes.Animation` |
-| `audio` | Represents an audio file to be treated as music. | `TelegramTypes.Audio` |
-| `channel_chat_created` | Indicates if a channel chat was created. | `boolean` |
-| `contact` | Represents a phone contact. | `TelegramTypes.Contact` |
-| `delete_chat_photo` | Indicates if a chat photo was deleted. | `boolean` |
-| `dice` | Represents an animated emoji that displays a random value. | `TelegramTypes.Dice` |
-| `document` | Represents a general file (as opposed to photos, voice messages, and audio files). | `TelegramTypes.Document` |
-| `game` | Describes a game within the Telegram platform. | `TelegramTypes.Game` |
-| `group_chat_created` | Indicates if a group chat was created. | `boolean` |
-| `invoice` | Represents an invoice for a payment. | `TelegramTypes.Invoice` |
-| `left_chat_member` | Represents a user who left the chat. | `TelegramTypes.User` |
-| `location` | Represents a point on the map. | `TelegramTypes.Location` |
-| `migrate_from_chat_id` | Indicates the chat ID from which a chat was migrated. | `number` |
-| `migrate_to_chat_id` | Indicates the new chat ID to which a chat was migrated. | `number` |
-| `new_chat_members` | Indicates new members added to the chat. | `TelegramTypes.User[]` |
-| `new_chat_photo` | Represents a new chat photo update. | `TelegramTypes.PhotoSize[]` |
-| `new_chat_title` | Reflects an update to the chat's title. | `string` |
-| `passport_data` | Contains information for Telegram Passport data. | `TelegramTypes.PassportData` |
-| `photo` | Refers to photo messages. | `TelegramTypes.PhotoSize[]` |
-| `pinned_message` | Indicates a message that has been pinned in the chat. | `TelegramTypes.Message` |
-| `poll` | Contains information about a poll. | `TelegramTypes.Poll` |
-| `sticker` | Represents a sticker sent in the chat. | `TelegramTypes.Sticker` |
-| `successful_payment` | Indicates a successful payment transaction. | `TelegramTypes.SuccessfulPayment` |
-| `supergroup_chat_created` | Indicates if a supergroup chat was created. | `boolean` |
-| `video` | Represents a video file. | `TelegramTypes.Video` |
-| `video_note` | Represents a video message. | `TelegramTypes.VideoNote` |
-| `voice` | Represents a voice note. | `TelegramTypes.Voice` |
-| `video_chat_ended` | Indicates that a video chat in the chat has ended. | `TelegramTypes.VideoChatEnded` |
-| `video_chat_participants_invited` | Informs about new members invited to a video chat. | `TelegramTypes.VideoChatParticipantsInvited` |
-| `video_chat_scheduled` | Represents a service message about a video chat scheduled in the chat. | `TelegramTypes.VideoChatScheduled` |
-| `message_auto_delete_timer_changed` | Notifies about a change in auto-delete timer settings in a chat. | `TelegramTypes.MessageAutoDeleteTimerChanged` |
-| `web_app_data` | Describes data sent from a Web App to the bot. | `TelegramTypes.WebAppData` |
+|---|:-----------:|---|
+| text | Handles text messages sent in the chat. | string |
+| animation | Represents an animation file (GIF or H.264/MPEG-4 AVC video without sound). | TelegramTypes.Animation |
+| audio | Represents an audio file to be treated as music. | TelegramTypes.Audio |
+| channel_chat_created | Indicates if a channel chat was created. | boolean |
+| contact | Represents a phone contact. | TelegramTypes.Contact |
+| delete_chat_photo | Indicates if a chat photo was deleted. | boolean |
+| dice | Represents an animated emoji that displays a random value. | TelegramTypes.Dice |
+| document | Represents a general file (as opposed to photos, voice messages, and audio files). | TelegramTypes.Document |
+| game | Describes a game within the Telegram platform. | TelegramTypes.Game |
+| group_chat_created | Indicates if a group chat was created. | boolean |
+| invoice | Represents an invoice for a payment. | TelegramTypes.Invoice |
+| left_chat_member | Represents a user who left the chat. | TelegramTypes.User |
+| location | Represents a point on the map. | TelegramTypes.Location |
+| migrate_from_chat_id | Indicates the chat ID from which a chat was migrated. | number |
+| migrate_to_chat_id | Indicates the new chat ID to which a chat was migrated. | number |
+| new_chat_members | Indicates new members added to the chat. | TelegramTypes.User[] |
+| new_chat_photo | Represents a new chat photo update. | TelegramTypes.PhotoSize[] |
+| new_chat_title | Reflects an update to the chat's title. | string |
+| passport_data | Contains information for Telegram Passport data. | TelegramTypes.PassportData |
+| photo | Refers to photo messages. | TelegramTypes.PhotoSize[] |
+| pinned_message | Indicates a message that has been pinned in the chat. | TelegramTypes.Message |
+| poll | Contains information about a poll. | TelegramTypes.Poll |
+| sticker | Represents a sticker sent in the chat. | TelegramTypes.Sticker |
+| successful_payment | Indicates a successful payment transaction. | TelegramTypes.SuccessfulPayment |
+| supergroup_chat_created | Indicates if a supergroup chat was created. | boolean |
+| video | Represents a video file. | TelegramTypes.Video |
+| video_note | Represents a video message. | TelegramTypes.VideoNote |
+| voice | Represents a voice note. | TelegramTypes.Voice |
+| video_chat_ended | Indicates that a video chat in the chat has ended. | TelegramTypes.VideoChatEnded |
+| video_chat_participants_invited | Informs about new members invited to a video chat. | TelegramTypes.VideoChatParticipantsInvited |
+| video_chat_scheduled | Represents a service message about a video chat scheduled in the chat. | TelegramTypes.VideoChatScheduled |
+| message_auto_delete_timer_changed | Notifies about a change in auto-delete timer settings in a chat. | TelegramTypes.MessageAutoDeleteTimerChanged |
+| web_app_data | Describes data sent from a Web App to the bot. | TelegramTypes.WebAppData |
 
 ### Update Types Table
 
 | Event | Description | Return Type |
-|----------------|:---------:|----------------|
-| `message` | New incoming message of any kind - text, photo, sticker, etc. | `TelegramTypes.Message` |
-| `channel_post` | New incoming channel post of any kind (text, photo, sticker, etc.). | `TelegramTypes.Message` |
-| `poll` | New poll state. Bots receive only updates about stopped polls and polls sent by the bot. | `TelegramTypes.Poll` |
-| `callback_query`| Incoming callback query from a callback button in an inline keyboard. | `TelegramTypes.CallbackQuery` |
-| `chat_join_request`| A request to join the chat has been sent. | `TelegramTypes.ChatJoinRequest` |
+|----|:---------:|----------------|
+| message | New incoming message of any kind - text, photo, sticker, etc. | TelegramTypes.Message |
+| channel_post | New incoming channel post of any kind (text, photo, sticker, etc.). | TelegramTypes.Message |
+| poll | New poll state. Bots receive only updates about stopped polls and polls sent by the bot. | TelegramTypes.Poll |
+| callback_query| Incoming callback query from a callback button in an inline keyboard. | TelegramTypes.CallbackQuery |
+| chat_join_request| A request to join the chat has been sent. | TelegramTypes.ChatJoinRequest |
 
 ## Examples
 
@@ -214,7 +218,21 @@ bot.onMessage('text', (parameter, message) => {
     };
 
     // Send a message back to the chat with the inline keyboard
-    bot.sendMessage(message.chat.id, (parameter || 'if parameter empty'), inlineKeyboardMarkup).catch(
+    bot.sendMessage(message.chat.id, (parameter || 'if parameter empty'), inlineKeyboardMarkup).then((message) => {
+        setTimeout(() => {
+            bot.editMessageText({
+                text: "Test",
+                chat_id: message.chat.id,
+                message_id: message.message_id,
+                reply_markup: {
+                    inline_keyboard: [
+                        [{ text: 'TestNew1', callback_data: 'Callback data testNew1' }],
+                        [{ text: 'TestNew2', callback_data: 'Callback data testNew2' }]
+                    ]
+                }
+            })
+        }, 1000);
+    }).catch(
         (error) => {
             // Handle errors specifically related to Telegram
             if (error instanceof TelegramError) {
@@ -334,12 +352,12 @@ The `TelegramError` class provides a structured way to handle errors encountered
 
 #### Properties Table TelegramError
 
-| Parameter    | Type                         | Description                                                                                                                                                   |
-|--------------|------------------------------|---------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `error_code` | `string` \| `undefined`      | An optional code that provides additional information about the error. This is typically specific to the type of error encountered.                           |
-| `type`       | `TelegramErrorTypes`         | The type of the error, categorized as one of the predefined `TelegramErrorTypes`, such as `NetworkError`, `ApiError`, etc.                                    |
-| `message`    | `string`                     | Inherited from the base `Error` class, this property contains a message describing the error.                                                                |
-| `stack`      | `string` \| `undefined`      | Also inherited from the base `Error` class, this property provides a stack trace at the point where the error was instantiated, if available.                 |
+| Parameter | Type | Description |
+|----|----|----|
+| error_code | string \| undefined | An optional code that provides additional information about the error. This is typically specific to the type of error encountered. |
+| type | TelegramErrorTypes | The type of the error, categorized as one of the predefined TelegramErrorTypes, such as NetworkError, ApiError, etc. |
+| message | string | Inherited from the base Error class, this property contains a message describing the error. |
+| stack | string \| undefined      | Also inherited from the base Error class, this property provides a stack trace at the point where the error was instantiated, if available.                 |
 
 ## Polling Wait Manager
 

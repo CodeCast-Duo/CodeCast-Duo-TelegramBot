@@ -4,15 +4,15 @@ export class PollingWaitManager {
     private waitStartTime: number | null = null;
     private _shouldContinuePollingFunctions: Map<string, () => boolean> = new Map();
 
-    
-    public get shouldContinuePollingFunctions() : Map<string, () => boolean> {
+
+    public get shouldContinuePollingFunctions(): Map<string, () => boolean> {
         return this._shouldContinuePollingFunctions;
     }
-    
+
 
     private static _optionsPollingWaitManager: OptionsPollingWaitManage = {
         maxWaitTime: 60000,
-        onWaitTooLong: ()=>{},
+        onWaitTooLong: () => { },
     };
 
     public static get optionsPollingWaitManager(): OptionsPollingWaitManage {
@@ -23,8 +23,8 @@ export class PollingWaitManager {
         PollingWaitManager._optionsPollingWaitManager = { ...PollingWaitManager._optionsPollingWaitManager, ...value };
     }
 
-    constructor(options:Partial<OptionsPollingWaitManage> | null) {
-        if(options){
+    constructor(options: Partial<OptionsPollingWaitManage> | null) {
+        if (options) {
             PollingWaitManager.optionsPollingWaitManager = options;
         }
     }
@@ -60,7 +60,7 @@ export class PollingWaitManager {
 
     private resetWaitingTimer() {
         this.waitStartTime = null;
-    }
+       }
 
     private isWaitingTooLong(): boolean {
         return this.waitStartTime !== null && (Date.now() - this.waitStartTime) > PollingWaitManager._optionsPollingWaitManager.maxWaitTime;

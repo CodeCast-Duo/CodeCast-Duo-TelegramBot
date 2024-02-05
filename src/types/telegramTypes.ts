@@ -358,6 +358,14 @@ export type InlineKeyboardMarkup = {
   inline_keyboard: Array<InlineKeyboardButton[]>
 }
 
+export type LinkPreviewOptions={
+  is_disabled?: boolean, // True, if the link preview for the message is disabled
+  url?: string, // URL to be shown
+  prefer_small_media?: boolean, // True, if the link preview should be shown in small size
+  prefer_large_media?: boolean, // True, if the link preview should be shown in large size
+  show_above_text?: boolean, // True, if the link preview should be shown above the message text
+}
+
 export type InlineKeyboardButton = {
   text: string; // Label text on the button
   url?: string; // HTTP or tg:// URL to be opened when the button is pressed

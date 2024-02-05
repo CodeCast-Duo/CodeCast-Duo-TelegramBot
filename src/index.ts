@@ -8,13 +8,20 @@ export class Telegram extends TelegramAPI {
     }
 
     getMe(options: Object | TelegramTypes.EmptyObject = {}): Promise<TelegramTypes.User> {
-        return super.sendRequest<TelegramTypes.User>('getMe', options);
+        return super.getMe(options);
     }
 
     onText(regexp: RegExp | string, callback: (arg: TelegramTypes.Message) => void): void {
         this.callBacksText.push({ regexp, callback });
     }
+
+    editMessageText(options: TelegramTypes.EditMessageTextType): Promise<TelegramTypes.Message> {
+        if (!options.chat_id && !options.message_id && !options.inline_message_id) {
+            throw new Error('Need chat_id, message_id or inline_message_id');
+        }
+        return super.sendRequest<TelegramTypes.Message>('editMessageText', options);
+    }
 }
 
 export * as TelegramTypes from './types'
-export {TelegramError}  from './telegramError'
+export { TelegramError } from './telegramError'
