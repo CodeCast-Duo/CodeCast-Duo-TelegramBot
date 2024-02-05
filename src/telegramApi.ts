@@ -103,7 +103,7 @@ export class TelegramAPI extends EventEmitter implements ITelegramAPI {
         const message = update.message;
         if (message) {
             const metadataType = Object.keys(message).find(this.isIncludeMessageType) as TelegramTypes.MessageTypesKeys;
-            this.emit('message', message);
+            this.emit('message', message, update);
             if (metadataType) {
                 this.emitMessage(metadataType, message[metadataType], message);
             }

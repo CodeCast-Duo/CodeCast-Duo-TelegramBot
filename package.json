@@ -1,12 +1,11 @@
 {
   "name": "@codecast-duo/codecast-duo-telegrambot",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "description": "The \"codecast-duo-telegrambot\" project is a specialized Telegram bot designed exclusively for organizing and managing the activities of the \"codecast-duo\" community or initiative",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc",
-    "run-test": "ts-node .\\test\\src-index.ts"
+    "build": "tsc"
   },
   "keywords": [
     "codecast-duo",
